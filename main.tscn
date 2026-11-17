@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://b5kl7xge12na3"]
+[gd_scene format=3 uid="uid://b5kl7xge12na3"]
 
 [ext_resource type="Script" uid="uid://45s3md5lbhns" path="res://scripts/main.gd" id="1_2y0bw"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_c1c6e"]
@@ -52,71 +52,71 @@ size = Vector3(3, 3, 3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_p44lu"]
 size = Vector3(3, 3, 3)
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=492063583]
 script = ExtResource("1_2y0bw")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=726016185]
 environment = SubResource("Environment_agrih")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1466704624]
 transform = Transform3D(0.866025, 0.383022, -0.321394, 0, 0.642788, 0.766044, 0.5, -0.663414, 0.55667, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Arena" type="Node3D" parent="."]
+[node name="Arena" type="Node3D" parent="." unique_id=291632542]
 
-[node name="Floor" type="StaticBody3D" parent="Arena"]
+[node name="Floor" type="StaticBody3D" parent="Arena" unique_id=1728034330]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Floor"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Floor" unique_id=1566566727]
 material_override = SubResource("StandardMaterial3D_doyi6")
 mesh = SubResource("BoxMesh_5s3l5")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Floor"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Floor" unique_id=1473211796]
 shape = SubResource("BoxShape3D_7wqft")
 
-[node name="Platform1" type="StaticBody3D" parent="Arena"]
+[node name="Platform1" type="StaticBody3D" parent="Arena" unique_id=989852173]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, 4)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Platform1"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Platform1" unique_id=1226903160]
 material_override = SubResource("StandardMaterial3D_c4t0v")
 mesh = SubResource("BoxMesh_52sbo")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Platform1"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Platform1" unique_id=2141734757]
 shape = SubResource("BoxShape3D_e5mqn")
 
-[node name="Platform2" type="StaticBody3D" parent="Arena"]
+[node name="Platform2" type="StaticBody3D" parent="Arena" unique_id=644375231]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, 5)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Platform2"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Platform2" unique_id=1306229708]
 material_override = SubResource("StandardMaterial3D_ogsa5")
 mesh = SubResource("BoxMesh_rmqcl")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Platform2"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Platform2" unique_id=1814102792]
 shape = SubResource("BoxShape3D_475w8")
 
-[node name="Platform3" type="StaticBody3D" parent="Arena"]
+[node name="Platform3" type="StaticBody3D" parent="Arena" unique_id=1508073912]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, -2)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Platform3"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Arena/Platform3" unique_id=1020750420]
 material_override = SubResource("StandardMaterial3D_s5077")
 mesh = SubResource("BoxMesh_8wct8")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Platform3"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Arena/Platform3" unique_id=1544110108]
 shape = SubResource("BoxShape3D_p44lu")
 
-[node name="Player" parent="." instance=ExtResource("2_c1c6e")]
+[node name="Player" parent="." unique_id=665257998 instance=ExtResource("2_c1c6e")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 
-[node name="Enemies" type="Node3D" parent="."]
+[node name="Enemies" type="Node3D" parent="." unique_id=1949490145]
 
-[node name="Dummy1" parent="Enemies" instance=ExtResource("3_c4o5y")]
+[node name="Dummy1" parent="Enemies" unique_id=171802321 instance=ExtResource("3_c4o5y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -8)
 
-[node name="Dummy2" parent="Enemies" instance=ExtResource("3_c4o5y")]
+[node name="Dummy2" parent="Enemies" unique_id=2006472629 instance=ExtResource("3_c4o5y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.1, -6)
 
-[node name="Dummy3" parent="Enemies" instance=ExtResource("3_c4o5y")]
+[node name="Dummy3" parent="Enemies" unique_id=1301113068 instance=ExtResource("3_c4o5y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.1, -6)
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1110092697]
 script = ExtResource("4_slm3r")

@@ -58,7 +58,7 @@ const COMBO := [
 @export var jump_strip_vertical := true       ## hilangkan lonjakan Hips di clip jump (fisika yang lompat)
 
 @export_group("Movement")
-@export var walk_speed := 10
+@export var walk_speed := 50
 @export var sprint_speed := 15
 @export var accel := 60.0
 @export var turn_speed := 14.0

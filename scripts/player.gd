@@ -12,6 +12,7 @@ signal hit_landed
 enum State { FREE, ATTACK, DASH, BLOCK, SKILL, DEAD }
 
 const ANIM_FILES := {
+	"walk": "res://assets/samurai/Walking.fbx",
 	"run": "res://assets/samurai/run.fbx",
 	"jump": "res://assets/samurai/jump.fbx",
 	"dash": "res://assets/samurai/dash_ground.fbx",      # 1 frame (pose lunge rendah)
@@ -20,16 +21,18 @@ const ANIM_FILES := {
 	"attack1": "res://assets/samurai/attack1.fbx",
 	"attack2": "res://assets/samurai/attack2.fbx",
 	"attack3": "res://assets/samurai/attack3.fbx",
+	"stomp": "res://assets/samurai/Stomp.fbx",
 }
 const SHOCKWAVE_PATH := "res://scenes/shockwave.tscn"
+const IMPACT_PATH := "res://scenes/impact.tscn"
 ## Tidak ada clip power-up untuk samurai: skill AoE memakai clip attack3 (tebasan melompat ke bawah).
-const SKILL_CLIP := "attack3"
+const SKILL_CLIP := "stomp"
 const SKILL_HIT_FRAC := 0.60   ## ledakan AoE saat tebasan menghantam (sekitar 0.75 dtk dari 1.23 dtk)
 const SAMURAI_TEX_DIR := "res://assets/samurai/textures/"
 ## Warna placeholder per material jika tekstur tidak ditemukan.
 const FALLBACK_COLORS := {
 	"Cuerpo_low_mat": Color(0.80, 0.60, 0.46),   # badan / kulit
-	"Masc_mat": Color(0.80, 0.60, 0.46),         # wajah
+	"Masc_mat": Color(0.529, 0.0, 0.105, 1.0),         # wajah
 	"Lompa_low_mat": Color(0.16, 0.22, 0.38),    # celana + ikat pinggang
 	"Medias_mat1": Color(0.85, 0.80, 0.70),      # pembungkus kaki
 	"Zapas_Mat1": Color(0.12, 0.09, 0.08),       # sandal
@@ -43,10 +46,15 @@ const ROOT_SAMPLE_RATE := 60.0
 
 ## Data combo (hasil analisis clip). "hit" = momen kena (fraksi durasi), "cancel" = mulai boleh
 ## lanjut combo / dash / lompat, "end" = serangan selesai.
+## "impact": VFX hembusan angin vertikal di titik kena (lihat scripts/impact.gd):
+## scale = pengali ukuran semburan (pukulan berat lebih besar).
 const COMBO := [
-	{"anim": "attack1", "speed": 2, "hit": 0.46, "cancel": 0.62, "end": 0.93, "damage": 10, "range": 2.6, "knockback": 4.0},
-	{"anim": "attack2", "speed": 2, "hit": 0.50, "cancel": 0.70, "end": 0.92, "damage": 14, "range": 2.8, "knockback": 5.0},
-	{"anim": "attack3", "speed": 2, "hit": 0.60, "cancel": 0.78, "end": 0.94, "damage": 25, "range": 3.2, "knockback": 12.0},
+	{"anim": "attack1", "speed": 2, "hit": 0.46, "cancel": 0.62, "end": 0.93, "damage": 10, "range": 2.6, "knockback": 4.0,
+		"impact": {"scale": 1.0}},
+	{"anim": "attack2", "speed": 2, "hit": 0.50, "cancel": 0.70, "end": 0.92, "damage": 14, "range": 2.8, "knockback": 5.0,
+		"impact": {"scale": 1.15}},
+	{"anim": "attack3", "speed": 2, "hit": 0.60, "cancel": 0.78, "end": 0.94, "damage": 25, "range": 3.2, "knockback": 12.0,
+		"impact": {"scale": 1.45}},
 ]
 
 @export_group("Model")
@@ -58,14 +66,14 @@ const COMBO := [
 @export var jump_strip_vertical := true       ## hilangkan lonjakan Hips di clip jump (fisika yang lompat)
 
 @export_group("Movement")
-@export var walk_speed := 10
-@export var sprint_speed := 20
-@export var accel := 60.0
-@export var turn_speed := 14.0
-@export var jump_velocity := 7.0
+@export var walk_speed := 5
+@export var sprint_speed := 12
+@export var accel := 40.0
+@export var turn_speed := 15.0
+@export var jump_velocity := 9.0
 @export var gravity := 20.0
-@export var walk_anim_speed := 1.5
-@export var sprint_anim_speed := 2
+@export var walk_anim_speed := 1.0
+@export var sprint_anim_speed := 1.5
 
 @export_group("Dash")
 @export var dash_speed := 40.0                ## dash darat (gerak lewat kode, pose dari dash_ground.fbx)
@@ -272,7 +280,9 @@ func _build_animations() -> void:
 			continue
 		var inst := ps.instantiate()
 		var ap := _find_anim_player(inst)
-		var clip := _own_clip(ap) if ap else null
+		var clip: Animation = null
+		if ap:
+			clip = _own_clip(ap)
 		if clip:
 			lib.add_animation(key, clip.duplicate())
 		else:
@@ -281,7 +291,7 @@ func _build_animations() -> void:
 
 	for n in lib.get_animation_list():
 		var clip := lib.get_animation(n)
-		clip.loop_mode = Animation.LOOP_LINEAR if (n == "idle" or n == "run") else Animation.LOOP_NONE
+		clip.loop_mode = Animation.LOOP_LINEAR if (n == "idle" or n == "run" or n == "walk") else Animation.LOOP_NONE
 		if strip_root_motion:
 			if n in ROOT_MOTION_CLIPS:
 				_root_z[n] = _sample_root(clip)
@@ -304,14 +314,14 @@ func _find_hips_track(clip: Animation) -> int:
 ## Rekam progres maju (sumbu Z Hips) per 1/60 detik.
 func _sample_root(clip: Animation) -> PackedFloat32Array:
 	var out := PackedFloat32Array()
-	var tr := _find_hips_track(clip)
-	if tr < 0:
+	var track := _find_hips_track(clip)
+	if track < 0:
 		return out
-	var z0: float = clip.position_track_interpolate(tr, 0.0).z
+	var z0: float = clip.position_track_interpolate(track, 0.0).z
 	var steps := int(ceil(clip.length * ROOT_SAMPLE_RATE))
 	for s in steps + 1:
 		var t := minf(s / ROOT_SAMPLE_RATE, clip.length)
-		out.append(clip.position_track_interpolate(tr, t).z - z0)
+		out.append(clip.position_track_interpolate(track, t).z - z0)
 	return out
 
 
@@ -326,16 +336,16 @@ func _root_progress(clip_name: String, t: float) -> float:
 
 
 func _strip_root_motion(clip: Animation, strip_vertical: bool) -> void:
-	var tr := _find_hips_track(clip)
-	if tr < 0:
+	var track := _find_hips_track(clip)
+	if track < 0:
 		return
-	var n := clip.track_get_key_count(tr)
+	var n := clip.track_get_key_count(track)
 	if n == 0:
 		return
-	var first: Vector3 = clip.track_get_key_value(tr, 0)
+	var first: Vector3 = clip.track_get_key_value(track, 0)
 	for k in n:
-		var v: Vector3 = clip.track_get_key_value(tr, k)
-		clip.track_set_key_value(tr, k, Vector3(first.x, first.y if strip_vertical else v.y, first.z))
+		var v: Vector3 = clip.track_get_key_value(track, k)
+		clip.track_set_key_value(track, k, Vector3(first.x, first.y if strip_vertical else v.y, first.z))
 
 
 ## Terapkan root motion clip ke velocity, searah `dir`.
@@ -499,8 +509,11 @@ func _state_free(delta: float, dir: Vector3, atk: bool, jmp: bool, dsh: bool, sk
 			_start_block()
 		elif jmp:
 			_do_jump()
-		elif dir.length() > 0.1:
-			_play("run", sprint_anim_speed if sprint else walk_anim_speed)
+		elif  dir.length() > 0.1:
+			if sprint:
+				_play("run", sprint_anim_speed)
+			else:
+				_play("walk", walk_anim_speed)
 		else:
 			_play("idle")
 	elif _cur_anim != "jump":
@@ -577,6 +590,7 @@ func _state_attack(delta: float, dir: Vector3, atk: bool, jmp: bool, dsh: bool, 
 	if not _hit_done and frac >= c["hit"]:
 		_hit_done = true
 		_do_hit(c)
+		_spawn_impact(c["impact"])
 
 	if frac >= c["cancel"]:
 		if dsh and dash_cd <= 0.0:
@@ -617,6 +631,20 @@ func _auto_face() -> void:
 		if d < best_d and d > 0.01:
 			best_d = d
 			facing = to / d
+
+
+## Hembusan angin vertikal VFX basic attack: muncul sekejap di titik pukulan
+## (tangan kosong) seperti udara yang terdorong keluar saat tinju mendarat.
+## Data per-combo ada di COMBO ("impact": scale).
+func _spawn_impact(cfg: Dictionary) -> void:
+	var scene := load(IMPACT_PATH) as PackedScene
+	if scene == null:
+		return
+	var fx := scene.instantiate()
+	fx.set("scale_all", float(cfg.get("scale", 1.0)))
+	fx.set("yaw_deg", rad_to_deg(atan2(facing.x, facing.z)))
+	get_parent().add_child(fx)
+	(fx as Node3D).global_position = global_position + facing * 1.1 + Vector3.UP * (target_height * 0.55)
 
 
 func _do_hit(c: Dictionary) -> void:

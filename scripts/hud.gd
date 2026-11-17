@@ -42,7 +42,6 @@ func _ready() -> void:
 	box.add_child(_info)
 
 	var help := Label.new()
-	help.text = "WASD: gerak   Shift: sprint   Space: lompat   Ctrl / Q: dash (bisa di udara)   E: skill AoE\nKlik kiri: serang (combo 3 hit)   Klik kanan / F: block   Mouse: kamera   Esc: lepas mouse"
 	add_child(help)
 	help.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 20)
 

@@ -58,22 +58,22 @@ const COMBO := [
 @export var jump_strip_vertical := true       ## hilangkan lonjakan Hips di clip jump (fisika yang lompat)
 
 @export_group("Movement")
-@export var walk_speed := 50
-@export var sprint_speed := 15
+@export var walk_speed := 10
+@export var sprint_speed := 20
 @export var accel := 60.0
 @export var turn_speed := 14.0
 @export var jump_velocity := 7.0
 @export var gravity := 20.0
-@export var walk_anim_speed := 1.2
-@export var sprint_anim_speed := 1.0
+@export var walk_anim_speed := 1.5
+@export var sprint_anim_speed := 2
 
 @export_group("Dash")
-@export var dash_speed := 30.0                ## dash darat (gerak lewat kode, pose dari dash_ground.fbx)
+@export var dash_speed := 40.0                ## dash darat (gerak lewat kode, pose dari dash_ground.fbx)
 @export var dash_time := 0.35
 @export var dash_cooldown := 1.2
 @export var dash_iframe_frac := 0.7           ## sebagian awal dash kebal damage
 @export var max_air_dashes := 1               ## berapa kali boleh dash di udara per lompatan
-@export var air_dash_speed := 30.0
+@export var air_dash_speed := 40.0
 @export var air_dash_time := 0.4
 
 @export_group("Combat")

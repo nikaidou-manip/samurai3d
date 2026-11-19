@@ -76,7 +76,7 @@ const COMBO := [
 @export var sprint_anim_speed := 1.5
 
 @export_group("Dash")
-@export var dash_speed := 40.0                ## dash darat (gerak lewat kode, pose dari dash_ground.fbx)
+@export var dash_speed := 30.0                ## dash darat (gerak lewat kode, pose dari dash_ground.fbx)
 @export var dash_time := 0.35
 @export var dash_cooldown := 1.2
 @export var dash_iframe_frac := 0.7           ## sebagian awal dash kebal damage
